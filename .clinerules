@@ -1,0 +1,121 @@
+# Attractify Client Portal - Cline Development Rules
+
+## Git Workflow Automation
+
+### Branch Strategy
+- **main**: Production-ready code (protected)
+- **develop**: Integration branch for all features
+- **feature/[name]**: Individual feature branches
+
+### Automatic Workflow Rules
+
+#### 1. Feature Development
+- When starting ANY new feature or task: 
+  - Automatically create a new feature branch from develop
+  - Branch naming: `feature/[descriptive-kebab-case-name]`
+  - Example: `feature/add-user-authentication`, `feature/fix-navigation-bug`
+
+#### 2. During Development
+- Make regular, atomic commits with descriptive messages
+- Commit message format: `type(scope): description`
+  - Types: feat, fix, docs, style, refactor, perf, test, chore
+  - Example: `feat(auth): add login functionality`
+
+#### 3. Task Completion
+- At the end of EVERY feature task, automatically:
+  1. Show git status and changes
+  2. Prompt user: "Would you like to commit and push these changes?"
+  3. If yes, commit with appropriate message
+  4. Prompt user: "Would you like to merge this feature into develop?"
+  5. Handle merge (with conflict resolution if needed)
+  6. Clean up feature branch after successful merge
+
+#### 4. Release Process
+- When develop has accumulated features:
+  - Prompt: "Would you like to create a release and merge to main?"
+  - If yes, merge develop → main
+  - Tag the release (e.g., v1.0.0, v1.1.0)
+
+### Implementation Guidelines
+
+#### Starting New Features
+```
+1. Check current branch
+2. If not on develop, switch to develop
+3. Pull latest changes from origin/develop
+4. Create feature branch: feature/[task-name]
+5. Switch to feature branch
+6. Begin work
+```
+
+#### Completing Features
+```
+1. Show all changes made
+2. Commit changes with descriptive message
+3. Push feature branch to origin
+4. Offer to create pull request or merge directly
+5. After merge, delete feature branch locally
+6. Switch back to develop
+```
+
+### Git Commands Reference
+- Create feature: `git checkout -b feature/name`
+- Switch branches: `git checkout branch-name`
+- Commit: `git commit -m "type(scope): message"`
+- Push: `git push origin branch-name`
+- Merge: `git merge feature/name`
+- Delete branch: `git branch -d feature/name`
+
+### Conflict Resolution
+- If conflicts occur during merge:
+  1. Show conflicting files
+  2. Assist in resolving conflicts
+  3. Complete merge after resolution
+
+### Status Checks
+- Always check git status before major operations
+- Ensure working directory is clean before switching branches
+- Stash work-in-progress if needed: `git stash`
+
+## Project-Specific Rules
+
+### Code Quality
+- Run tests before committing (if applicable)
+- Ensure code follows project conventions
+- No console.logs in production code
+
+### File Organization
+- Keep components in src/components/
+- Utilities in src/lib/
+- Hooks in src/hooks/
+- Documentation in memory-bank/
+
+### Dependencies
+- Use pnpm for package management
+- Update pnpm-lock.yaml when adding dependencies
+
+## Automation Behavior
+
+### Always Automatic (No prompting needed):
+1. Creating feature branches when starting new work
+2. Switching to appropriate branch
+3. Checking git status
+4. Showing what will be committed
+
+### Always Prompt User:
+1. Before pushing to remote
+2. Before merging branches
+3. Before deleting branches
+4. When creating releases/tags
+
+### Emergency Commands
+- Abort merge: `git merge --abort`
+- Undo last commit: `git reset --soft HEAD~1`
+- Discard all changes: `git reset --hard HEAD`
+- Recover stashed work: `git stash pop`
+
+## Notes
+- This workflow ensures clean git history
+- Prevents accidental commits to main
+- Facilitates collaboration through clear branch structure
+- Maintains separation between development and production code
