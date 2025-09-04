@@ -1,0 +1,95 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Production builds
+dist/
+build/
+storybook-static/
+
+# Environment variables (keep .env.example)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-*
+.vimrc.local
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+nyc_output/
+.c8_output/
+
+# Temporary folders
+tmp/
+temp/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# Vite specific
+.vite/
+.vite-inspect/
+
+# Testing
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Package manager lock files (keeping pnpm-lock.yaml for this project)
+yarn.lock
+package-lock.json
+
+# Backup and temporary files
+*.bak
+*.backup
+*.old
+*.tmp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Runtime and process files
+.pnp.*
+.yarn/
