@@ -1,65 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { localStorageDB } from '../lib/supabase';
+import React from 'react';
 
-const ClientList = ({ onEditClient }) => {
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    fetchClients();
-  }, []);
-
-  const fetchClients = async () => {
-    try {
-      setLoading(true);
-      const result = await localStorageDB.getClients();
-      
-      if (result.error) throw result.error;
-      setClients(result.data || []);
-    } catch (err) {
-      console.error('Error fetching clients:', err);
-      setError('Failed to load clients');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteClient = async (clientId, companyName) => {
-    if (!confirm(`Are you sure you want to delete ${companyName}?`)) {
-      return;
-    }
-
-    try {
-      const result = await localStorageDB.deleteClient(clientId);
-      
-      if (result.error) throw result.error;
-      
-      // Remove from local state
-      setClients(clients.filter(client => client.id !== clientId));
-      alert('Client deleted successfully');
-    } catch (err) {
-      console.error('Error deleting client:', err);
-      alert('Failed to delete client');
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <div className="text-gray-600">Loading clients...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-        {error}
-      </div>
-    );
-  }
-
+const ClientList = ({ clients = [], onEditClient, onDeleteClient }) => {
   if (clients.length === 0) {
     return (
       <div className="text-center py-8">
@@ -75,12 +16,6 @@ const ClientList = ({ onEditClient }) => {
         <h2 className="text-xl font-semibold text-gray-900">
           Clients ({clients.length})
         </h2>
-        <button
-          onClick={fetchClients}
-          className="text-blue-600 hover:text-blue-800 text-sm"
-        >
-          Refresh
-        </button>
       </div>
 
       <div className="grid gap-4">
@@ -166,7 +101,7 @@ const ClientList = ({ onEditClient }) => {
                   </button>
                 )}
                 <button
-                  onClick={() => handleDeleteClient(client.id, client.company_name)}
+                  onClick={() => onDeleteClient && onDeleteClient(client.id)}
                   className="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50"
                 >
                   Delete

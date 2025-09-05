@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { localStorageDB } from '../lib/supabase';
+import { localStorageDB } from '../lib/localStorage';
 
 const ClientCreationForm = ({ client, onClientCreated, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -77,8 +77,6 @@ const ClientCreationForm = ({ client, onClientCreated, onCancel }) => {
       if (onClientCreated) {
         onClientCreated(result.data);
       }
-
-      alert(client ? 'Client updated successfully!' : 'Client created successfully!');
 
     } catch (err) {
       console.error('Error saving client:', err);

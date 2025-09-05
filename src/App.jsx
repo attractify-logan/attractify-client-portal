@@ -9,6 +9,7 @@ import Timeline from './components/Timeline'
 import Support from './components/Support'
 import ClientCreationForm from './components/ClientCreationForm'
 import ClientList from './components/ClientList'
+import Toast from './components/ui/toast'
 import { localStorageDB } from './lib/localStorage'
 import './App.css'
 
@@ -25,6 +26,13 @@ function App() {
     name: 'User',
     email: 'user@attractifymarketing.com',
     role: 'Marketing Manager'
+  })
+
+  // Toast notification state
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success'
   })
 
   // Load clients on app start
@@ -56,8 +64,8 @@ function App() {
     setShowClientForm(false)
     setEditingClient(null)
     
-    // Show success message
-    alert(`${newClient.company_name} added successfully!`)
+    // Show success message with toast
+    showToast(`${newClient.company_name} added successfully!`, 'success')
   }
 
   const handleClientUpdated = (updatedClient) => {
@@ -70,8 +78,8 @@ function App() {
     setShowClientForm(false)
     setEditingClient(null)
     
-    // Show success message
-    alert(`${updatedClient.company_name} updated successfully!`)
+    // Show success message with toast
+    showToast(`${updatedClient.company_name} updated successfully!`, 'success')
   }
 
   const handleEditClient = (client) => {
@@ -92,12 +100,29 @@ function App() {
       try {
         await localStorageDB.deleteClient(clientId)
         setClients(prev => prev.filter(c => c.id !== clientId))
-        alert('Client deleted successfully')
+        showToast('Client deleted successfully', 'success')
       } catch (error) {
         console.error('Error deleting client:', error)
-        alert('Failed to delete client')
+        showToast('Failed to delete client', 'error')
       }
     }
+  }
+
+  // Toast management functions
+  const showToast = (message, type = 'success') => {
+    setToast({
+      isVisible: true,
+      message,
+      type
+    })
+  }
+
+  const hideToast = () => {
+    setToast({
+      isVisible: false,
+      message: '',
+      type: 'success'
+    })
   }
 
   // Calculate dashboard stats
@@ -228,10 +253,18 @@ function App() {
             </div>
           </main>
         </div>
+
+        {/* Toast Notification */}
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={hideToast}
+          duration={3000}
+        />
       </div>
     </Router>
   )
 }
 
 export default App
-
