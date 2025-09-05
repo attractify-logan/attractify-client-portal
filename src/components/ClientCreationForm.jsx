@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { localStorageDB } from '../lib/localStorage';
+import { localStorageDB } from '../lib/supabase';
 
 const ClientCreationForm = ({ client, onClientCreated, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -257,4 +257,3 @@ const ClientCreationForm = ({ client, onClientCreated, onCancel }) => {
 };
 
 export default ClientCreationForm;
-

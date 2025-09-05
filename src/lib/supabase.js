@@ -1,9 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Supabase configuration
-// These would normally come from environment variables
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://your-project.supabase.co'
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'your-anon-key'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.')
+}
 
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -297,5 +300,189 @@ export const subscriptions = {
   }
 }
 
-export default supabase
+// Compatibility layer for localStorage API
+// This allows existing components to work without modification
+export const localStorageDB = {
+  // Get all clients
+  async getClients() {
+    try {
+      const data = await db.clients.getAll();
+      return { data: data || [], error: null };
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      return { data: [], error };
+    }
+  },
 
+  // Add a new client
+  async addClient(clientData) {
+    try {
+      const data = await db.clients.create(clientData);
+      
+      // Initialize default onboarding steps
+      if (data) {
+        await db.onboardingSteps.createDefault(data.id);
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error adding client:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Update a client
+  async updateClient(id, updates) {
+    try {
+      const data = await db.clients.update(id, updates);
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error updating client:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Delete a client
+  async deleteClient(id) {
+    try {
+      await db.clients.delete(id);
+      return { data: null, error: null };
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Update onboarding step status for a client
+  async updateOnboardingStep(clientId, stepId, status) {
+    try {
+      const updateData = {
+        status,
+        updated_at: new Date().toISOString()
+      };
+      
+      if (status === 'completed') {
+        updateData.completed_at = new Date().toISOString();
+      } else {
+        updateData.completed_at = null;
+      }
+      
+      const { data, error } = await supabase
+        .from('onboarding_steps')
+        .update(updateData)
+        .eq('id', stepId)
+        .eq('client_id', clientId)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      // Fetch the updated client to return the full data
+      const client = await db.clients.getById(clientId);
+      return { data: client, error: null };
+    } catch (error) {
+      console.error('Error updating onboarding step:', error);
+      return { data: null, error };
+    }
+  },
+
+  // Get default onboarding steps template (for compatibility)
+  getDefaultOnboardingSteps() {
+    return [
+      {
+        id: 1,
+        title: 'Schedule Onboarding Call',
+        description: 'Book initial consultation call with client',
+        icon: 'Calendar',
+        estimatedTime: '5 minutes',
+        link: 'https://calendly.com/admin-attractifymarketing/onboarding-call',
+        details: 'Use Calendly to schedule the initial onboarding call. This call will cover project scope, timeline, and expectations.',
+        status: 'pending',
+        completed_at: null
+      },
+      {
+        id: 2,
+        title: 'Website Access Setup',
+        description: 'Obtain administrator access to client website',
+        icon: 'Globe',
+        estimatedTime: '10 minutes',
+        details: 'Request admin access to client website. Email should be admin@attractifymarketing.com. If non-admin access is provided, additional setup guidance will be required.',
+        status: 'pending',
+        completed_at: null
+      },
+      {
+        id: 3,
+        title: 'Social Media Integration',
+        description: 'Connect Google & social media accounts',
+        icon: 'Share2',
+        estimatedTime: '15 minutes',
+        link: 'https://app.admatic.io/#/connect/tk88dkkt49',
+        details: 'Connect client\'s Google and social media accounts through Admatic.io. If accounts don\'t exist, assist with creation during the onboarding call.',
+        status: 'pending',
+        completed_at: null
+      },
+      {
+        id: 4,
+        title: 'Recording Schedule Planning',
+        description: 'Set up recurring content recording schedule',
+        icon: 'Video',
+        estimatedTime: '10 minutes',
+        details: 'Choose from: 1 hour weekly, 2 hours bi-weekly, or 4 hours monthly. Schedule should be committed to and added to calendar during onboarding call.',
+        status: 'pending',
+        completed_at: null
+      },
+      {
+        id: 5,
+        title: 'Google Analytics 4 Setup',
+        description: 'Configure GA4 property and tracking',
+        icon: 'BarChart3',
+        estimatedTime: '20 minutes',
+        details: 'Create GA4 property, configure data streams, install tracking code, and set up enhanced measurement features.',
+        status: 'pending',
+        completed_at: null
+      },
+      {
+        id: 6,
+        title: 'Google Tag Manager Setup',
+        description: 'Install and configure GTM container',
+        icon: 'Settings',
+        estimatedTime: '25 minutes',
+        details: 'Create GTM container, install tracking codes, configure GA4 tags, and set up conversion tracking.',
+        status: 'pending',
+        completed_at: null
+      },
+      {
+        id: 7,
+        title: 'Final Verification',
+        description: 'Test all integrations and tracking',
+        icon: 'CheckCircle',
+        estimatedTime: '15 minutes',
+        details: 'Verify all tracking codes are working, test data flow, and confirm all integrations are functioning properly.',
+        status: 'pending',
+        completed_at: null
+      }
+    ];
+  },
+
+  // Initialize onboarding steps for a client if they don't exist
+  async initializeOnboardingSteps(clientId) {
+    try {
+      const steps = await db.onboardingSteps.getByClientId(clientId);
+      
+      // If no steps exist, create default ones
+      if (!steps || steps.length === 0) {
+        await db.onboardingSteps.createDefault(clientId);
+      }
+      
+      return { data: true, error: null };
+    } catch (error) {
+      console.error('Error initializing onboarding steps:', error);
+      return { data: null, error };
+    }
+  }
+};
+
+// Also export supabaseDB as an alias
+export const supabaseDB = localStorageDB;
+
+export default supabase

@@ -93,3 +93,32 @@ package-lock.json
 # Runtime and process files
 .pnp.*
 .yarn/
+.pnpm-store/
+
+# Project documentation and context
+memory-bank/
+
+# Deployment configuration (optional - uncomment if you want to ignore)
+# vercel.json
+# netlify.toml
+# .vercel/
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Storybook
+storybook-static/
+.storybook-out/
+
+# macOS specific
+.AppleDouble
+.LSOverride
+
+# Windows specific
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux specific
+.directory
+.Trash-*

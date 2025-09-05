@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { localStorageDB } from '../lib/localStorage';
+import { localStorageDB } from '../lib/supabase';
 
 const ClientList = ({ onEditClient }) => {
   const [clients, setClients] = useState([]);
@@ -181,4 +181,3 @@ const ClientList = ({ onEditClient }) => {
 };
 
 export default ClientList;
-
