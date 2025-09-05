@@ -61,8 +61,8 @@ const ClientList = ({ clients = [], onEditClient, onDeleteClient }) => {
                   
                   {client.website && (
                     <div>
-                      <span className="font-medium">Website:</span> 
-                      <a 
+                      <span className="font-medium">Website:</span>
+                      <a
                         href={client.website}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -72,10 +72,22 @@ const ClientList = ({ clients = [], onEditClient, onDeleteClient }) => {
                       </a>
                     </div>
                   )}
-                  
+
                   {client.industry && (
                     <div>
                       <span className="font-medium">Industry:</span> {client.industry}
+                    </div>
+                  )}
+
+                  {client.google_analytics_id && (
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium">Analytics:</span>
+                      <span className="text-green-600 font-mono text-sm">{client.google_analytics_id}</span>
+                      {client.analytics_setup_complete && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          ✓ Configured
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>

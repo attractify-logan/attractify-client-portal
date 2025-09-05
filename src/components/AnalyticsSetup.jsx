@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -8,10 +8,10 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
-  BarChart3, 
-  Settings, 
-  CheckCircle, 
+import {
+  BarChart3,
+  Settings,
+  CheckCircle,
   AlertCircle,
   ExternalLink,
   Copy,
@@ -20,14 +20,21 @@ import {
   HelpCircle,
   Zap,
   Users,
-  Plus
+  Plus,
+  Save,
+  Loader2
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { db } from '@/lib/supabase'
 
 const AnalyticsSetup = ({ clients = [], selectedClientId = null, onClientSelect = () => {} }) => {
   const [currentClientId, setCurrentClientId] = useState(selectedClientId)
   const [websiteUrl, setWebsiteUrl] = useState('')
   const [measurementId, setMeasurementId] = useState('G-XXXXXXXXXX')
+  const [isLoading, setIsLoading] = useState(false)
+  const [analyticsData, setAnalyticsData] = useState(null)
+  const [enhancedMeasurement, setEnhancedMeasurement] = useState(true)
+  const [crossDomainTracking, setCrossDomainTracking] = useState(false)
 
   // Default analytics steps template
   const defaultGA4Steps = [
@@ -85,12 +92,75 @@ const AnalyticsSetup = ({ clients = [], selectedClientId = null, onClientSelect 
     }
   }
 
+  // Load analytics data when client changes
+  useEffect(() => {
+    const loadAnalyticsData = async () => {
+      if (currentClientId) {
+        setIsLoading(true)
+        try {
+          const data = await db.analyticsSetup.getByClientId(currentClientId)
+          if (data) {
+            setAnalyticsData(data)
+            setMeasurementId(data.measurement_id || 'G-XXXXXXXXXX')
+            setWebsiteUrl(data.website_url || '')
+            setEnhancedMeasurement(data.enhanced_measurement ?? true)
+            setCrossDomainTracking(data.cross_domain_tracking ?? false)
+          } else {
+            // Reset to defaults if no data exists
+            setAnalyticsData(null)
+            setMeasurementId('G-XXXXXXXXXX')
+            setEnhancedMeasurement(true)
+            setCrossDomainTracking(false)
+          }
+        } catch (error) {
+          console.error('Error loading analytics data:', error)
+        } finally {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadAnalyticsData()
+  }, [currentClientId])
+
   const handleClientChange = (clientId) => {
     setCurrentClientId(clientId)
     onClientSelect(clientId)
     const client = clients.find(c => c.id === clientId)
     if (client) {
       setWebsiteUrl(client.website || '')
+    }
+  }
+
+  const saveAnalyticsSetup = async () => {
+    if (!currentClientId) return
+
+    setIsLoading(true)
+    try {
+      const analyticsSetupData = {
+        measurement_id: measurementId,
+        website_url: websiteUrl,
+        enhanced_measurement: enhancedMeasurement,
+        cross_domain_tracking: crossDomainTracking,
+        setup_status: 'configured',
+        last_updated: new Date().toISOString()
+      }
+
+      const result = await db.analyticsSetup.createOrUpdate(currentClientId, analyticsSetupData)
+      setAnalyticsData(result)
+
+      // Also update the client record with analytics data
+      await db.clients.update(currentClientId, {
+        google_analytics_id: measurementId,
+        analytics_setup_complete: true,
+        updated_at: new Date().toISOString()
+      })
+
+      console.log('Analytics setup saved successfully')
+    } catch (error) {
+      console.error('Error saving analytics setup:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -284,12 +354,40 @@ const AnalyticsSetup = ({ clients = [], selectedClientId = null, onClientSelect 
                           />
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Switch id="enhanced-measurement" />
+                          <Switch
+                            id="enhanced-measurement"
+                            checked={enhancedMeasurement}
+                            onCheckedChange={setEnhancedMeasurement}
+                          />
                           <Label htmlFor="enhanced-measurement">Enhanced Measurement</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Switch id="cross-domain" />
+                          <Switch
+                            id="cross-domain"
+                            checked={crossDomainTracking}
+                            onCheckedChange={setCrossDomainTracking}
+                          />
                           <Label htmlFor="cross-domain">Cross-Domain Tracking</Label>
+                        </div>
+
+                        <div className="flex space-x-3 pt-4">
+                          <Button
+                            onClick={saveAnalyticsSetup}
+                            disabled={isLoading || !measurementId || measurementId === 'G-XXXXXXXXXX'}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            {isLoading ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="mr-2 h-4 w-4" />
+                                Save Analytics Setup
+                              </>
+                            )}
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -386,4 +484,3 @@ const AnalyticsSetup = ({ clients = [], selectedClientId = null, onClientSelect 
 }
 
 export default AnalyticsSetup
-

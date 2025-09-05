@@ -9,7 +9,9 @@ const ClientCreationForm = ({ client, onClientCreated, onCancel }) => {
     contact_phone: client?.contact_phone || '',
     website: client?.website || '',
     industry: client?.industry || '',
-    notes: client?.notes || ''
+    notes: client?.notes || '',
+    google_analytics_id: client?.google_analytics_id || '',
+    analytics_setup_complete: client?.analytics_setup_complete || false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -45,6 +47,8 @@ const ClientCreationForm = ({ client, onClientCreated, onCancel }) => {
         website: formData.website.trim() || null,
         industry: formData.industry.trim() || null,
         notes: formData.notes.trim() || null,
+        google_analytics_id: formData.google_analytics_id.trim() || null,
+        analytics_setup_complete: formData.google_analytics_id.trim() ? true : false,
         status: 'active',
         health_score: 75 // Default health score
       };
@@ -229,6 +233,29 @@ const ClientCreationForm = ({ client, onClientCreated, onCancel }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Add any additional notes about this client..."
           />
+        </div>
+
+        <div className="border-t pt-4">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">Analytics Setup (Optional)</h3>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="google_analytics_id" className="block text-sm font-medium text-gray-700 mb-1">
+                Google Analytics Measurement ID
+              </label>
+              <input
+                type="text"
+                id="google_analytics_id"
+                name="google_analytics_id"
+                value={formData.google_analytics_id}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="G-XXXXXXXXXX"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Enter the Google Analytics 4 measurement ID for this client's website
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end space-x-3 pt-4">
