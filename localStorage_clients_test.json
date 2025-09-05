@@ -1,0 +1,16 @@
+[
+  {
+    "id": "test-client-1",
+    "company_name": "Test Client Inc.",
+    "contact_name": "John Doe",
+    "contact_email": "john@testclient.com",
+    "contact_phone": null,
+    "website": null,
+    "industry": "Technology",
+    "notes": "Test client for onboarding demo",
+    "status": "active",
+    "health_score": 75,
+    "created_at": "2025-09-05T04:58:21.213Z",
+    "updated_at": "2025-09-05T04:58:21.214Z"
+  }
+]

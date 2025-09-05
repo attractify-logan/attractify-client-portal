@@ -12,6 +12,7 @@
 - **Tailwind CSS**: Utility-first CSS framework
 - **Shadcn/UI**: High-quality React component library
 - **Lucide React**: Modern icon library
+- **Sonner**: Toast notification library
 - **Responsive Design**: Mobile-first approach
 
 ### **Routing & Navigation**
@@ -309,9 +310,12 @@ const performanceMetrics = {
 
 ### **Deployment**
 - **GitHub Pages**: Static site deployment
+- **Vercel**: Alternative deployment option (documented)
+- **Netlify**: Alternative deployment option (documented)
 - **Build Process**: Automated via Vite
 - **Domain**: Custom domain ready
 - **SSL**: Automatic HTTPS
+- **Git Workflow**: Automated feature branching via .clinerules
 
 ### **Testing Strategy**
 - **Manual Testing**: Comprehensive user flow testing

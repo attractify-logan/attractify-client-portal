@@ -15,7 +15,7 @@ import {
   Plus,
   ChevronDown
 } from 'lucide-react';
-import { localStorageDB } from '../lib/supabase';
+import { localStorageDB } from '../lib/localStorage';
 
 const OnboardingChecklist = ({ clients = [], selectedClientId = null, onClientSelect = () => {} }) => {
   const [currentClientId, setCurrentClientId] = useState(selectedClientId);
